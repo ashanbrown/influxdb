@@ -573,7 +573,8 @@ def main():
             print "!! Cannot package without command 'fpm'. Stopping."
             sys.exit(1)
         packages = build_packages(build_output, version, nightly=nightly, rc=rc)
-        print_package_summary(packages)
+        # TODO(rossmcdonald): Add nice output for print_package_summary()
+        # print_package_summary(packages)
         # Optionally upload to S3
         if upload:
             upload_packages(packages, nightly=nightly)
