@@ -199,6 +199,7 @@ def upload_packages(packages, nightly=False):
     print "Uploading packages to S3..."
     print ""
     c = boto.connect_s3()
+    # TODO(rossmcdonald) - Set to different S3 bucket for release vs nightly
     bucket = c.get_bucket('influxdb-nightly')
     for p in packages:
         name = os.path.basename(p)
@@ -229,7 +230,7 @@ def run_tests():
     else:
         print "Tests Passed"
         return True
-    
+
 def build(version=None,
           branch=None,
           commit=None,
@@ -326,6 +327,16 @@ def package_scripts(build_root):
     shutil.copyfile(LOGROTATE_SCRIPT, os.path.join(build_root, SCRIPT_DIR[1:], LOGROTATE_SCRIPT.split('/')[1]))
     shutil.copyfile(DEFAULT_CONFIG, os.path.join(build_root, CONFIG_DIR[1:], DEFAULT_CONFIG.split('/')[1]))
 
+def go_get(update=False):        
+    get_command = None
+    if update:
+        get_command = "go get -u -f -d ./..."
+    else:
+        get_command = "go get -d ./..."
+    print "Retrieving Go dependencies...",
+    run(get_command)
+    print "done.\n"
+    
 def generate_md5_from_file(path):
     m = hashlib.md5()
     with open(path, 'rb') as f:
@@ -367,6 +378,11 @@ def build_packages(build_output, version, nightly=False, rc=None):
                     if package_type in ['zip', 'tar']:
                         if nightly:
                             name = '{}-nightly_{}_{}'.format(name, p, a)
+                        else:
+                            name = '{}-{}_{}_{}'.format(name, version, p, a)
+                    if package_type == 'tar':
+                        # Add `tar.gz` to path to ensure a small package size
+                        current_location = os.path.join(current_location, name + 'tar.gz')
                     fpm_command = "fpm {} --name {} -a {} -t {} --version {} -C {} -p {} ".format(
                         fpm_common_args,
                         name,
@@ -389,6 +405,7 @@ def build_packages(build_output, version, nightly=False, rc=None):
                     if outfile is None:
                         print "[ COULD NOT DETERMINE OUTPUT ]"
                     else:
+                        # Strip nightly version (the unix epoch) from filename
                         if nightly and package_type == 'deb':
                             outfile = rename_file(outfile, outfile.replace("{}".format(version), "nightly"))
                         elif nightly and package_type == 'rpm':
@@ -525,17 +542,9 @@ def main():
             return 1
         return 0
 
-    get_command = None
-    if update:
-        get_command = "go get -u -f -d ./..."
-    else:
-        get_command = "go get -d ./..."
-    print "Retrieving Go dependencies...",
-    run(get_command)
-    print "done.\n"
+    go_get(update=update)
     
     platforms = []
-
     single_build = True
     if target_platform == 'all':
         platforms = supported_builds.keys()
