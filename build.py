@@ -202,7 +202,7 @@ def upload_packages(packages, nightly=False):
     bucket = c.get_bucket('influxdb-nightly')
     for p in packages:
         name = os.path.basename(p)
-        if bucket.get_key(name) is None and not nightly:
+        if bucket.get_key(name) is None or nightly:
             print "\t - Uploading {}...".format(name),
             k = Key(bucket)
             k.key = name
