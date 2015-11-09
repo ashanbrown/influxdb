@@ -580,7 +580,7 @@ def main():
     if package:
         if not check_path_for("fpm"):
             print "!! Cannot package without command 'fpm'. Stopping."
-            sys.exit(1)
+            return 1
         packages = build_packages(build_output, version, nightly=nightly, rc=rc)
         # TODO(rossmcdonald): Add nice output for print_package_summary()
         # print_package_summary(packages)
@@ -590,4 +590,4 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())
