@@ -41,3 +41,5 @@ else
         chkconfig --add influxdb
     fi
 fi
+
+exit
