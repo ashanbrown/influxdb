@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 BIN_DIR=/usr/bin
 DATA_DIR=/var/lib/influxdb
 LOG_DIR=/var/log/influxdb

@@ -58,7 +58,6 @@ fpm_common_args = "-f -s dir --log error \
  --pre-install {} \
  --license {} \
  --maintainer {} \
- --name influxdb \
  --config-files {} \
  --config-files {} \
  --description \"{}\"".format(
@@ -382,7 +381,7 @@ def build_packages(build_output, version, nightly=False, rc=None):
                             name = '{}-{}_{}_{}'.format(name, version, p, a)
                     if package_type == 'tar':
                         # Add `tar.gz` to path to ensure a small package size
-                        current_location = os.path.join(current_location, name + 'tar.gz')
+                        current_location = os.path.join(current_location, name + '.tar.gz')
                     fpm_command = "fpm {} --name {} -a {} -t {} --version {} -C {} -p {} ".format(
                         fpm_common_args,
                         name,
