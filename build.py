@@ -202,7 +202,7 @@ def upload_packages(packages, nightly=False):
     bucket = c.get_bucket('influxdb-nightly')
     for p in packages:
         name = os.path.basename(p)
-        if bucket.get_key(name) is None:
+        if bucket.get_key(name) is None and not nightly:
             print "\t - Uploading {}...".format(name),
             k = Key(bucket)
             k.key = name
@@ -393,7 +393,7 @@ def build_packages(build_output, version, nightly=False, rc=None):
                             outfile = rename_file(outfile, outfile.replace("{}".format(version), "nightly"))
                         elif nightly and package_type == 'rpm':
                             outfile = rename_file(outfile, outfile.replace("{}-1".format(version), "nightly"))
-                        outfiles.append(os.path.join(current_location, outfile))
+                        outfiles.append(os.path.join(os.getcwd(), outfile))
                         print "[ DONE ]"
                         # Display MD5 hash for generated package
                         print "\t\tMD5 = {}".format(generate_md5_from_file(outfile))
